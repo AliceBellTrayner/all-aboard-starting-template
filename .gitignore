@@ -1,0 +1,23 @@
+# npm packages
+node_modules/
+
+# Python virtual environments
+.venv/
+venv/
+
+# Environment files
+.env
+.env.*
+!.env.example
+
+# Certificates and private keys
+*.pfx
+*.pem
+
+# Azure local settings
+local.settings.json
+appsettings.Development.json
+.azure/
+
+# Claude Code local config
+.claude/
