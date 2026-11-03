@@ -1,4 +1,4 @@
-# launchpad-2-starting-template
+# all-aboard-starting-template
 
 Go to [mwlaunchpad.com](https://mwlaunchpad.com) for information about Launchpad.
 
@@ -11,5 +11,5 @@ Work from your own fork of this repo, not from this repo directly.
 3. Clone your fork, replacing `<your-github-username>` with your username:
 
    ```bash
-   git clone https://github.com/<your-github-username>/launchpad-2-starting-template.git
+   git clone https://github.com/<your-github-username>/all-aboard-starting-template.git
    ```
