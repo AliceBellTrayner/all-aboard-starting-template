@@ -1,0 +1,65 @@
+@import "tailwindcss";
+
+/* LaunchPad design tokens (shadcn/ui-compatible variable names) */
+@theme inline {
+  --color-background: #f4f8ff;
+  --color-foreground: #17203a;
+  --color-ink: #17203a;
+  --color-muted-ink: #6b7898;
+  --color-primary: #2f2bff;
+  --color-primary-foreground: #ffffff;
+  --color-ring: #2f2bff;
+  --color-gold-200: #ffe9a6;
+  --color-gold-400: #ffc83d;
+  --color-gold-600: #d8921a;
+  --color-meadow-400: #58c48a;
+  --color-meadow-600: #2f9e6a;
+  --color-sky-300: #9ee3ff;
+  --color-sky-100: #e6f8ff;
+  --color-coral: #ff6f61;
+
+  --font-sans: "Nunito", ui-rounded, "SF Pro Rounded", "Segoe UI Variable Display", "Segoe UI", system-ui, -apple-system, sans-serif;
+
+  --shadow-soft: 0 18px 40px -18px rgba(23, 32, 58, 0.35);
+  --shadow-node: 0 12px 0 -2px rgba(23, 32, 58, 0.18), 0 18px 30px -10px rgba(23, 32, 58, 0.35);
+}
+
+@layer base {
+  html,
+  body {
+    height: 100%;
+    overscroll-behavior: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  body {
+    background: #0e1a33;
+    color: var(--color-foreground);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  button {
+    cursor: pointer;
+  }
+}
+
+@layer utilities {
+  .no-scrollbar {
+    scrollbar-width: none;
+  }
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+/* Gold metallic fill used for completed milestones */
+.gold-fill {
+  background:
+    radial-gradient(circle at 30% 25%, #fff6cf 0%, rgba(255, 246, 207, 0) 45%),
+    linear-gradient(160deg, #ffe27a 0%, #ffc23a 45%, #e59a14 100%);
+}
+
+.gold-ring {
+  background: linear-gradient(160deg, #fff3b8 0%, #f5b82e 50%, #b87410 100%);
+}
