@@ -3,6 +3,7 @@
 import { useCallback, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { BottomNav, type TabId } from "@/components/launchpad/bottom-nav";
+import { SplashScreen } from "@/components/launchpad/splash-screen";
 import { JourneyScreen } from "@/components/journey/journey-screen";
 import { TasksScreen } from "@/components/tasks/tasks-screen";
 import { ToolsScreen } from "@/components/tools/tools-screen";
@@ -14,6 +15,8 @@ import { ProfileScreen, type ProfileSection } from "@/components/profile/profile
 
 export default function Home() {
   const { role, persona } = useUserRole();
+  // The HorsePower splash greets every visit; "Saddle up" continues to Home.
+  const [showSplash, setShowSplash] = useState(true);
   const [tab, setTab] = useState<TabId>("home");
   const [profileSection, setProfileSection] = useState<ProfileSection>("overview");
 
@@ -51,36 +54,47 @@ export default function Home() {
     <main className="flex min-h-dvh w-full items-stretch justify-center bg-[#0e1a33] sm:items-center sm:py-8">
       <div className="relative h-dvh w-full max-w-[440px] overflow-hidden bg-[#8fd9fb] sm:h-[860px] sm:rounded-[2.5rem] sm:shadow-[0_40px_120px_-30px_rgba(0,0,0,0.7)] sm:ring-8 sm:ring-[#1b2a4a]">
         <AnimatePresence mode="wait">
-          <motion.div
-            key="app"
-            className="absolute inset-0"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.5 }}
-          >
-            {tab === "home" ? (
-              <HomeScreen onContinue={continueToJourney} onProfile={openProfile} onNavigate={changeTab} />
-            ) : tab === "journey" ? (
-              <JourneyScreen
-                celebrateOnEntry={celebrateJourney}
-                onCelebrationComplete={finishJourneyCelebration}
-              />
-            ) : tab === "tasks" ? (
-              <TasksScreen />
-            ) : tab === "tools" ? (
-              <ToolsScreen />
-            ) : tab === "buddy" ? (
-              <BuddyScreen />
-            ) : (
-              <ProfileScreen initialSection={profileSection} onBackHome={() => setTab("home")} />
-            )}
-            {tab !== "home" && (
-              <div className="absolute inset-x-0 top-0 z-40 px-4 pt-[max(0.75rem,env(safe-area-inset-top))]">
-                <RoleSwitcher />
-              </div>
-            )}
-            <BottomNav active={tab} onChange={changeTab} />
-          </motion.div>
+          {showSplash ? (
+            <motion.div
+              key="splash"
+              className="absolute inset-0"
+              exit={{ opacity: 0, scale: 1.04 }}
+              transition={{ duration: 0.45, ease: "easeInOut" }}
+            >
+              <SplashScreen onStart={() => setShowSplash(false)} />
+            </motion.div>
+          ) : (
+            <motion.div
+              key="app"
+              className="absolute inset-0"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.5 }}
+            >
+              {tab === "home" ? (
+                <HomeScreen onContinue={continueToJourney} onProfile={openProfile} onNavigate={changeTab} />
+              ) : tab === "journey" ? (
+                <JourneyScreen
+                  celebrateOnEntry={celebrateJourney}
+                  onCelebrationComplete={finishJourneyCelebration}
+                />
+              ) : tab === "tasks" ? (
+                <TasksScreen />
+              ) : tab === "tools" ? (
+                <ToolsScreen />
+              ) : tab === "buddy" ? (
+                <BuddyScreen />
+              ) : (
+                <ProfileScreen initialSection={profileSection} onBackHome={() => setTab("home")} />
+              )}
+              {tab !== "home" && (
+                <div className="absolute inset-x-0 top-0 z-40 px-4 pt-[max(0.75rem,env(safe-area-inset-top))]">
+                  <RoleSwitcher />
+                </div>
+              )}
+              <BottomNav active={tab} onChange={changeTab} />
+            </motion.div>
+          )}
         </AnimatePresence>
       </div>
     </main>
