@@ -77,7 +77,7 @@ export const roleDefinitions: RoleDefinition[] = [
   },
   {
     role: "job-family-buddy",
-    label: "Job Family Buddy",
+    label: "Job Family Buddy (recent starter)",
     shortLabel: "Job buddy",
     description: "Share role know-how with your starter.",
   },
