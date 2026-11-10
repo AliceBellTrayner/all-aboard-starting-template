@@ -52,8 +52,8 @@ export function getReadinessScore(items: ReadinessItem[]): number {
  * - "locked":    an earlier milestone still has tasks this role must finish.
  *
  * Each role unlocks the next milestone once it has finished its own tasks in
- * the milestones before it. HR and IT tasks count for every role, so they
- * block everyone until ticked.
+ * the milestones before it. HR and IT tasks belong to the manager, so they
+ * only hold up the manager's view.
  */
 export function getViewerMilestoneStatuses(
   milestones: Milestone[],

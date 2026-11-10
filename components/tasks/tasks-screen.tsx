@@ -6,7 +6,7 @@ import { Check, ChevronDown, Lock } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useUserRole } from "@/context/user-role";
 import { useJourneyProgress } from "@/context/journey-progress";
-import { canActOnTask, getTaskOwnerLabel, isOwnTask } from "@/lib/task-ownership";
+import { canActOnTask, getTaskDepartmentLabel, getTaskOwnerLabel } from "@/lib/task-ownership";
 import type { OnboardingTask } from "@/types";
 
 /** Outstanding tasks only, grouped by milestone, with how-to steps for each. */
@@ -25,7 +25,7 @@ export function TasksScreen() {
     .filter((section) => section.tasks.length > 0);
 
   const outstanding = sections.reduce((n, s) => n + s.tasks.length, 0);
-  const forViewer = sections.reduce((n, s) => n + s.tasks.filter((t) => isOwnTask(t, persona.role)).length, 0);
+  const forViewer = sections.reduce((n, s) => n + s.tasks.filter((t) => canActOnTask(t, persona.role)).length, 0);
 
   return (
     <div className="no-scrollbar h-full overflow-y-auto overscroll-contain bg-gradient-to-b from-[#e6f8ff] to-[#f4f8ff] px-4 pb-32 pt-[84px]">
@@ -88,9 +88,9 @@ export function TasksScreen() {
                     <TaskCard
                       task={task}
                       ownerLabel={getTaskOwnerLabel(task, persona)}
-                      own={isOwnTask(task, persona.role)}
+                      departmentLabel={getTaskDepartmentLabel(task)}
+                      own={canActOnTask(task, persona.role)}
                       locked={locked}
-                      canComplete={!locked && canActOnTask(task, persona.role)}
                       expanded={expandedId === task.id}
                       onExpand={() => setExpandedId((id) => (id === task.id ? null : task.id))}
                       onComplete={() => toggleTask(task.id)}
@@ -109,17 +109,19 @@ export function TasksScreen() {
 type TaskCardProps = {
   task: OnboardingTask;
   ownerLabel: string;
+  /** "HR task" / "IT task" for tasks handled by those teams. */
+  departmentLabel?: string;
   /** True when the task belongs to the persona being viewed as. */
   own: boolean;
   locked: boolean;
-  canComplete: boolean;
   expanded: boolean;
   onExpand: () => void;
   onComplete: () => void;
 };
 
-function TaskCard({ task, ownerLabel, own, locked, canComplete, expanded, onExpand, onComplete }: TaskCardProps) {
+function TaskCard({ task, ownerLabel, departmentLabel, own, locked, expanded, onExpand, onComplete }: TaskCardProps) {
   const panelId = `task-steps-${task.id}`;
+  const canComplete = own && !locked;
   return (
     <div className="overflow-hidden rounded-2xl bg-white ring-1 ring-ink/5">
       <button
@@ -132,13 +134,20 @@ function TaskCard({ task, ownerLabel, own, locked, canComplete, expanded, onExpa
         <span className="min-w-0 flex-1">
           <span className={cn("block text-[15px] font-bold leading-snug", locked ? "text-muted-ink" : "text-ink")}>{task.title}</span>
           <span className="mt-0.5 block text-xs font-semibold text-muted-ink">{task.detail}</span>
-          <span
-            className={cn(
-              "mt-1.5 inline-flex rounded-full px-2 py-0.5 text-[10px] font-extrabold uppercase tracking-wide",
-              own ? "bg-primary/10 text-primary" : "bg-ink/5 text-muted-ink",
+          <span className="mt-1.5 flex flex-wrap gap-1.5">
+            <span
+              className={cn(
+                "inline-flex rounded-full px-2 py-0.5 text-[10px] font-extrabold uppercase tracking-wide",
+                own ? "bg-primary/10 text-primary" : "bg-ink/5 text-muted-ink",
+              )}
+            >
+              {ownerLabel}
+            </span>
+            {departmentLabel && (
+              <span className="inline-flex rounded-full bg-gold-200 px-2 py-0.5 text-[10px] font-extrabold uppercase tracking-wide text-[#6b3e00]">
+                {departmentLabel}
+              </span>
             )}
-          >
-            {ownerLabel}
           </span>
         </span>
         <ChevronDown
@@ -182,7 +191,7 @@ function TaskCard({ task, ownerLabel, own, locked, canComplete, expanded, onExpa
                 </button>
               ) : (
                 <p className="mt-4 rounded-xl bg-ink/5 px-3 py-2 text-xs font-semibold text-muted-ink">
-                  {locked ? "You can tick this off once the milestone unlocks." : `This is ${ownerLabel}, so it is theirs to tick off.`}
+                  {own ? "You can tick this off once the milestone unlocks." : `This is ${ownerLabel}, so it is theirs to tick off.`}
                 </p>
               )}
             </div>

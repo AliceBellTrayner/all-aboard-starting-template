@@ -5,7 +5,7 @@ import { motion } from "framer-motion";
 import { getPersonaById, organisation } from "@/data/mock";
 import { useUserRole } from "@/context/user-role";
 import { useJourneyProgress } from "@/context/journey-progress";
-import { isOwnTask } from "@/lib/task-ownership";
+import { canActOnTask } from "@/lib/task-ownership";
 import type { MilestoneStatus } from "@/types";
 import { Landscape } from "./landscape";
 import { JourneyPath } from "./journey-path";
@@ -78,9 +78,9 @@ export function JourneyScreen() {
 
   const percent = Math.round((doneTotal / TOTAL_TASKS) * 100);
 
-  // Open tasks the viewer can action (excludes HR/IT admin tasks).
+  // Open tasks that belong to the viewer.
   const openForViewer = milestones.reduce(
-    (n, m) => n + m.tasks.filter((t) => !completed.has(t.id) && isOwnTask(t, role)).length,
+    (n, m) => n + m.tasks.filter((t) => !completed.has(t.id) && canActOnTask(t, role)).length,
     0,
   );
 

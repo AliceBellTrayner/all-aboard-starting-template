@@ -4,7 +4,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { Check, Lock, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { Milestone, MilestoneStatus, Persona } from "@/types";
-import { canActOnTask, getTaskOwnerLabel, isOwnTask } from "@/lib/task-ownership";
+import { canActOnTask, getTaskDepartmentLabel, getTaskOwnerLabel } from "@/lib/task-ownership";
 
 type MilestoneSheetProps = {
   /** Milestone to show. Kept mounted after close so the exit animation has content. */
@@ -130,6 +130,7 @@ export function MilestoneSheet({
                   const done = completed.has(task.id);
                   const mine = canActOnTask(task, viewer.role);
                   const interactive = isCurrent && mine;
+                  const departmentLabel = getTaskDepartmentLabel(task);
                   return (
                     <motion.li
                       key={task.id}
@@ -172,13 +173,20 @@ export function MilestoneSheet({
                             {task.title}
                           </span>
                           <span className="mt-0.5 block text-xs font-semibold text-muted-ink">{task.detail}</span>
-                          <span
-                            className={cn(
-                              "mt-1.5 inline-flex rounded-full px-2 py-0.5 text-[10px] font-extrabold uppercase tracking-wide",
-                              isOwnTask(task, viewer.role) ? "bg-primary/10 text-primary" : "bg-ink/5 text-muted-ink",
+                          <span className="mt-1.5 flex flex-wrap gap-1.5">
+                            <span
+                              className={cn(
+                                "inline-flex rounded-full px-2 py-0.5 text-[10px] font-extrabold uppercase tracking-wide",
+                                mine ? "bg-primary/10 text-primary" : "bg-ink/5 text-muted-ink",
+                              )}
+                            >
+                              {getTaskOwnerLabel(task, viewer)}
+                            </span>
+                            {departmentLabel && (
+                              <span className="inline-flex rounded-full bg-gold-200 px-2 py-0.5 text-[10px] font-extrabold uppercase tracking-wide text-[#6b3e00]">
+                                {departmentLabel}
+                              </span>
                             )}
-                          >
-                            {getTaskOwnerLabel(task, viewer)}
                           </span>
                         </span>
                       </button>
