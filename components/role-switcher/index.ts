@@ -1,1 +1,1 @@
-export { RoleSwitcher } from "./role-switcher";
+export { RoleSwitcher, Avatar as PersonaAvatar } from "./role-switcher";

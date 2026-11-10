@@ -1,14 +1,15 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { ListChecks, Route, UserRound, Users, type LucideIcon } from "lucide-react";
+import { ListChecks, Route, UserRound, Users, Wrench, type LucideIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-export type TabId = "journey" | "tasks" | "buddy" | "profile";
+export type TabId = "journey" | "tasks" | "tools" | "buddy" | "profile";
 
 const TABS: { id: TabId; label: string; icon: LucideIcon }[] = [
   { id: "journey", label: "Journey", icon: Route },
   { id: "tasks", label: "Tasks", icon: ListChecks },
+  { id: "tools", label: "Tools", icon: Wrench },
   { id: "buddy", label: "Buddy", icon: Users },
   { id: "profile", label: "Profile", icon: UserRound },
 ];
@@ -33,7 +34,7 @@ export function BottomNav({ active, onChange }: BottomNavProps) {
               type="button"
               onClick={() => onChange(id)}
               aria-current={isActive ? "page" : undefined}
-              className="relative flex flex-1 flex-col items-center gap-1 rounded-3xl px-2 py-2 outline-none focus-visible:ring-4 focus-visible:ring-primary/30"
+              className="relative flex min-w-0 flex-1 flex-col items-center gap-1 rounded-3xl px-1 py-2 outline-none focus-visible:ring-4 focus-visible:ring-primary/30"
             >
               {isActive && (
                 <motion.span

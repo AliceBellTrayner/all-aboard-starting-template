@@ -16,7 +16,7 @@ const ROLE_TONE: Record<PersonaRole, { avatar: string; ring: string }> = {
   "job-family-buddy": { avatar: "from-[#ffb3a8] to-[#ff6f61]", ring: "border-coral" },
 };
 
-function Avatar({ initials, role, size = "md" }: { initials: string; role: PersonaRole; size?: "sm" | "md" | "lg" }) {
+export function Avatar({ initials, role, size = "md" }: { initials: string; role: PersonaRole; size?: "sm" | "md" | "lg" }) {
   const dims = size === "lg" ? "h-14 w-14 text-lg" : size === "md" ? "h-10 w-10 text-sm" : "h-8 w-8 text-xs";
   return (
     <span
