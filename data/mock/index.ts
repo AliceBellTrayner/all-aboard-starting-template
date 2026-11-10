@@ -11,9 +11,12 @@ import type {
   ManagerDashboard,
   NotificationItem,
   OnboardingJourney,
+  Peripheral,
   Persona,
   PersonaRole,
   RoleDefinition,
+  StoreApp,
+  TechRecommendation,
 } from "@/types";
 import { DEFAULT_PERSONA_BY_ROLE, DEMO_STARTER_ID, personas, roleDefinitions } from "./personas";
 import { PERSONA_ROLES } from "@/types";
@@ -21,6 +24,7 @@ import { jamesOnboardingJourney } from "./onboarding";
 import { notifications } from "./notifications";
 import { buddyDashboards, managerDashboards } from "./dashboards";
 import { chatMessages } from "./chats";
+import { peripherals, storeApps, techFor } from "./tools";
 
 export { PERSONA_IDS, DEMO_STARTER_ID, organisation } from "./personas";
 export { PERSONA_ROLES } from "@/types";
@@ -66,6 +70,23 @@ export function getManagerDashboard(managerId: string): ManagerDashboard | undef
 
 export function getBuddyDashboard(buddyId: string): BuddyDashboard | undefined {
   return buddyDashboards.find((d) => d.buddyId === buddyId);
+}
+
+export function getStoreApps(): StoreApp[] {
+  return storeApps;
+}
+
+/** True when an app is recommended for the given job title (or for everyone). */
+export function isAppRecommendedFor(app: StoreApp, jobTitle: string): boolean {
+  return app.recommendedFor === "everyone" || app.recommendedFor.includes(jobTitle);
+}
+
+export function getTechRecommendation(jobTitle: string): TechRecommendation {
+  return techFor(jobTitle);
+}
+
+export function getPeripherals(): Peripheral[] {
+  return peripherals;
 }
 
 /** All seed chat messages, oldest first. */
