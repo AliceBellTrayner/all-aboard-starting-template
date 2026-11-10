@@ -66,6 +66,12 @@ export function getBuddyDashboard(buddyId: string): BuddyDashboard | undefined {
   return buddyDashboards.find((d) => d.buddyId === buddyId);
 }
 
+/** Every buddy dashboard that supports the given starter, team buddy first. */
+export function getBuddyDashboardsForStarter(starterId: string): BuddyDashboard[] {
+  const order = (d: BuddyDashboard) => (getPersonaById(d.buddyId)?.role === "team-buddy" ? 0 : 1);
+  return buddyDashboards.filter((d) => d.starterProfile.personaId === starterId).sort((a, b) => order(a) - order(b));
+}
+
 export type {
   BuddyDashboard,
   ManagerDashboard,
