@@ -8,6 +8,7 @@
 import type {
   BuddyDashboard,
   ChatMessage,
+  HrKnowledgeEntry,
   ManagerDashboard,
   NotificationItem,
   OnboardingJourney,
@@ -25,6 +26,7 @@ import { notifications } from "./notifications";
 import { buddyDashboards, managerDashboards } from "./dashboards";
 import { chatMessages } from "./chats";
 import { peripherals, storeApps, techFor } from "./tools";
+import { hrKnowledge, hrSuggestedQuestions } from "./hr-knowledge";
 
 export { PERSONA_IDS, DEMO_STARTER_ID, organisation } from "./personas";
 export { PERSONA_ROLES } from "@/types";
@@ -87,6 +89,14 @@ export function getTechRecommendation(jobTitle: string): TechRecommendation {
 
 export function getPeripherals(): Peripheral[] {
   return peripherals;
+}
+
+export function getHrKnowledge(): HrKnowledgeEntry[] {
+  return hrKnowledge;
+}
+
+export function getHrSuggestedQuestions(): string[] {
+  return hrSuggestedQuestions;
 }
 
 /** All seed chat messages, oldest first. */

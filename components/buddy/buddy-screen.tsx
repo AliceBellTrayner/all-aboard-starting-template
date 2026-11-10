@@ -28,6 +28,7 @@ import { useUserRole } from "@/context/user-role";
 import { PersonaAvatar } from "@/components/role-switcher";
 import { cn } from "@/lib/utils";
 import { BuddyChatSheet, ChatBubbleButton } from "./buddy-chat";
+import { AskHrCard, AskHrSheet } from "./ask-hr";
 
 /* ---------- Formatting ---------- */
 
@@ -547,6 +548,18 @@ export function BuddyScreen() {
   }, []);
   const closeChat = useCallback(() => setChatOpen(false), []);
 
+  // Ask HR AI buddy. A question tapped on the card is asked as soon as the sheet opens.
+  const [askHrOpen, setAskHrOpen] = useState(false);
+  const [askHrPending, setAskHrPending] = useState<{ question: string; nonce: number } | null>(null);
+  const openAskHr = useCallback((question?: string) => {
+    if (question) setAskHrPending({ question, nonce: Date.now() });
+    setAskHrOpen(true);
+  }, []);
+  const closeAskHr = useCallback(() => {
+    setAskHrOpen(false);
+    setAskHrPending(null);
+  }, []);
+
   function send(recipientId: string, body: string) {
     setMessages((prev) => [
       ...prev,
@@ -579,6 +592,7 @@ export function BuddyScreen() {
             ) : (
               <BuddyView persona={persona} onOpenChat={openChat} />
             )}
+            <AskHrCard onAsk={openAskHr} />
           </motion.div>
         </AnimatePresence>
       </div>
@@ -591,6 +605,9 @@ export function BuddyScreen() {
         messages={messages}
         onSend={send}
       />
+
+      {/* Keyed by persona so each role gets its own Ask HR conversation. */}
+      <AskHrSheet key={persona.id} open={askHrOpen} onClose={closeAskHr} viewer={persona} pending={askHrPending} />
     </div>
   );
 }
