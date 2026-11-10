@@ -16,7 +16,7 @@ export const milestones: Milestone[] = [
       {
         id: "oa-welcome",
         milestoneId: "offer-accepted",
-        title: "Welcome to HorseShoe",
+        title: "Welcome to HorsePower",
         detail: "Take a two-minute tour of your journey and what happens next.",
         steps: [
           "Open the Journey tab and scroll the trail from Start to Confirmed in role.",

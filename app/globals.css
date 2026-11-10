@@ -1,6 +1,6 @@
 @import "tailwindcss";
 
-/* HorseShoe design tokens (shadcn/ui-compatible variable names) */
+/* HorsePower design tokens (shadcn/ui-compatible variable names) */
 @theme inline {
   --color-background: #f4f8ff;
   --color-foreground: #17203a;
