@@ -3,17 +3,18 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { Check, Lock, X } from "lucide-react";
 import { cn } from "@/lib/utils";
-import type { Milestone, MilestoneStatus, PersonaRole } from "@/types";
-import { canActOnTask, isAdminTask, OWNER_LABEL } from "@/lib/task-ownership";
+import type { Milestone, MilestoneStatus, Persona } from "@/types";
+import { canActOnTask, getTaskOwnerLabel, isOwnTask } from "@/lib/task-ownership";
 
 type MilestoneSheetProps = {
   /** Milestone to show. Kept mounted after close so the exit animation has content. */
   milestone: Milestone;
   status: MilestoneStatus;
   open: boolean;
-  completed: Set<string>;
+  completed: ReadonlySet<string>;
   previousTitle?: string;
-  viewerRole: PersonaRole;
+  /** The persona currently being viewed as. */
+  viewer: Persona;
   onToggle: (taskId: string) => void;
   onClose: () => void;
 };
@@ -24,7 +25,7 @@ export function MilestoneSheet({
   open,
   completed,
   previousTitle,
-  viewerRole,
+  viewer,
   onToggle,
   onClose,
 }: MilestoneSheetProps) {
@@ -127,7 +128,7 @@ export function MilestoneSheet({
               <ul className="flex flex-col gap-2.5 pb-4">
                 {milestone.tasks.map((task, i) => {
                   const done = completed.has(task.id);
-                  const mine = canActOnTask(task, viewerRole);
+                  const mine = canActOnTask(task, viewer.role);
                   const interactive = isCurrent && mine;
                   return (
                     <motion.li
@@ -174,10 +175,10 @@ export function MilestoneSheet({
                           <span
                             className={cn(
                               "mt-1.5 inline-flex rounded-full px-2 py-0.5 text-[10px] font-extrabold uppercase tracking-wide",
-                              mine && !isAdminTask(task) ? "bg-primary/10 text-primary" : "bg-ink/5 text-muted-ink",
+                              isOwnTask(task, viewer.role) ? "bg-primary/10 text-primary" : "bg-ink/5 text-muted-ink",
                             )}
                           >
-                            {mine && !isAdminTask(task) ? "Your task" : `${OWNER_LABEL[task.owner]} task`}
+                            {getTaskOwnerLabel(task, viewer)}
                           </span>
                         </span>
                       </button>

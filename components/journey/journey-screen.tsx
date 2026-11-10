@@ -2,11 +2,11 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { motion } from "framer-motion";
-import { getOnboardingJourney, DEMO_STARTER_ID, getPersonaById, organisation } from "@/data/mock";
+import { getPersonaById, organisation } from "@/data/mock";
 import { useUserRole } from "@/context/user-role";
-import { canActOnTask, isAdminTask } from "@/lib/task-ownership";
-import { getViewerMilestoneStatuses } from "@/lib/onboarding-selectors";
-import type { MilestoneStatus, OnboardingJourney } from "@/types";
+import { useJourneyProgress } from "@/context/journey-progress";
+import { isOwnTask } from "@/lib/task-ownership";
+import type { MilestoneStatus } from "@/types";
 import { Landscape } from "./landscape";
 import { JourneyPath } from "./journey-path";
 import { MilestoneNode } from "./milestone-node";
@@ -19,17 +19,6 @@ import {
   trailFractionForMilestone,
   WAYPOINTS,
 } from "./path-geometry";
-
-// The journey shown is always the demo starter's. Other roles view it as a reviewer.
-function requireJourney(): OnboardingJourney {
-  const found = getOnboardingJourney(DEMO_STARTER_ID);
-  if (!found) throw new Error(`No onboarding journey for starter "${DEMO_STARTER_ID}"`);
-  return found;
-}
-const journey: OnboardingJourney = requireJourney();
-const milestones = journey.milestones;
-const starter = getPersonaById(journey.starterId);
-const TOTAL_TASKS = milestones.reduce((sum, m) => sum + m.tasks.length, 0);
 
 function RingProgress({ value, size = 64, stroke = 7 }: { value: number; size?: number; stroke?: number }) {
   const r = (size - stroke) / 2;
@@ -64,16 +53,19 @@ export function JourneyScreen() {
   const scrollRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
 
-  const { role, roleDefinition } = useUserRole();
-  const [completed, setCompleted] = useState<Set<string>>(() => new Set(journey.completedTaskIds));
+  const { role, persona } = useUserRole();
+  // Progress is shared with the Tasks tab, so ticks survive switching tabs.
+  const { journey, milestones, completed, statuses, toggleTask } = useJourneyProgress();
+  const starter = getPersonaById(journey.starterId);
+  const TOTAL_TASKS = milestones.reduce((sum, m) => sum + m.tasks.length, 0);
   const [sheetIndex, setSheetIndex] = useState(0);
   const [sheetOpen, setSheetOpen] = useState(false);
 
-  const doneTotal = useMemo(() => milestones.reduce((n, m) => n + m.tasks.filter((t) => completed.has(t.id)).length, 0), [completed]);
+  const doneTotal = useMemo(
+    () => milestones.reduce((n, m) => n + m.tasks.filter((t) => completed.has(t.id)).length, 0),
+    [milestones, completed],
+  );
 
-  // Each role unlocks the next milestone once it has finished its own tasks
-  // in the milestones before it. Gold completion is shared by everyone.
-  const statuses = useMemo(() => getViewerMilestoneStatuses(milestones, completed, role), [completed, role]);
   const statusFor = (i: number): MilestoneStatus => statuses[i].status;
 
   // The furthest unlocked milestone is where this role is working. The
@@ -88,7 +80,7 @@ export function JourneyScreen() {
 
   // Open tasks the viewer can action (excludes HR/IT admin tasks).
   const openForViewer = milestones.reduce(
-    (n, m) => n + m.tasks.filter((t) => !completed.has(t.id) && !isAdminTask(t) && canActOnTask(t, role)).length,
+    (n, m) => n + m.tasks.filter((t) => !completed.has(t.id) && isOwnTask(t, role)).length,
     0,
   );
 
@@ -102,19 +94,6 @@ export function JourneyScreen() {
     scroller.scrollTo({ top: Math.max(0, y - scroller.clientHeight * 0.6), behavior: "auto" });
     // Only on mount: later progress changes should not yank the scroll position.
   }, []);
-
-  function toggleTask(taskId: string) {
-    const index = milestones.findIndex((m) => m.tasks.some((t) => t.id === taskId));
-    const task = milestones[index]?.tasks.find((t) => t.id === taskId);
-    // Only unlocked milestones for this role can be ticked off.
-    if (!task || statuses[index]?.status !== "current" || !canActOnTask(task, role)) return;
-    setCompleted((prev) => {
-      const next = new Set(prev);
-      if (next.has(taskId)) next.delete(taskId);
-      else next.add(taskId);
-      return next;
-    });
-  }
 
   const sheetMilestone = milestones[sheetIndex];
   const sheetStatus = statusFor(sheetIndex);
@@ -206,7 +185,7 @@ export function JourneyScreen() {
         open={sheetOpen}
         completed={completed}
         previousTitle={sheetPreviousTitle}
-        viewerRole={role}
+        viewer={persona}
         onToggle={toggleTask}
         onClose={() => setSheetOpen(false)}
       />

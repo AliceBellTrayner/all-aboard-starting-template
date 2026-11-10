@@ -6,6 +6,8 @@ export interface OnboardingTask {
   milestoneId: string;
   title: string;
   detail: string;
+  /** How to complete the task, in order. Shown on the Tasks tab. */
+  steps: string[];
   owner: TaskOwner;
 }
 
