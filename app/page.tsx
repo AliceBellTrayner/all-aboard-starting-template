@@ -5,8 +5,9 @@ import { AnimatePresence, motion } from "framer-motion";
 import { SplashScreen } from "@/components/launchpad/splash-screen";
 import { BottomNav, type TabId } from "@/components/launchpad/bottom-nav";
 import { JourneyScreen } from "@/components/journey/journey-screen";
-import { BuddyScreen } from "@/components/buddy/buddy-screen";
+import { TasksScreen } from "@/components/tasks/tasks-screen";
 import { ToolsScreen } from "@/components/tools/tools-screen";
+import { BuddyScreen } from "@/components/buddy/buddy-screen";
 import { RoleSwitcher } from "@/components/role-switcher";
 
 export default function Home() {
@@ -36,6 +37,8 @@ export default function Home() {
             >
               {tab === "journey" ? (
                 <JourneyScreen />
+              ) : tab === "tasks" ? (
+                <TasksScreen />
               ) : tab === "tools" ? (
                 <ToolsScreen />
               ) : tab === "buddy" ? (
