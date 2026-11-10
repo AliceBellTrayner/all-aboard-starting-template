@@ -44,7 +44,7 @@ export const notifications: NotificationItem[] = [
     recipientId: PERSONA_IDS.jamesWilson,
     kind: "reminder",
     title: "Your first payslip will be available soon",
-    body: "Your first payslip is due on 28 December. You will get a notification when it is ready to view.",
+    body: "Your first payslip is due on Friday 20 November. You will get a notification when it is ready to view.",
     createdAt: "2026-11-02T10:20:00.000Z",
     read: true,
   },

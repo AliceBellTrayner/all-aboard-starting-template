@@ -10,12 +10,23 @@ import type { HrKnowledgeEntry } from "@/types";
 const TZ = "Europe/London";
 const longDate = new Intl.DateTimeFormat("en-GB", { weekday: "long", day: "numeric", month: "long", timeZone: TZ });
 
-/** Last weekday of the month containing `isoDate`. */
-function lastWorkingDayOfMonth(isoDate: string): Date {
-  const d = new Date(`${isoDate}T12:00:00Z`);
-  const last = new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth() + 1, 0, 12));
-  while (last.getUTCDay() === 0 || last.getUTCDay() === 6) last.setUTCDate(last.getUTCDate() - 1);
-  return last;
+/**
+ * Payday for a month: the 20th, or the Friday before it when the 20th falls
+ * on a weekend. `monthIndex` is zero-based and may run past 11 into next year.
+ */
+function paydayFor(year: number, monthIndex: number): Date {
+  const payday = new Date(Date.UTC(year, monthIndex, 20, 12));
+  const weekday = payday.getUTCDay();
+  if (weekday === 6) payday.setUTCDate(19);
+  if (weekday === 0) payday.setUTCDate(18);
+  return payday;
+}
+
+/** The first payday on or after `isoDate`. */
+function firstPaydayFrom(isoDate: string): Date {
+  const start = new Date(`${isoDate}T12:00:00Z`);
+  const sameMonth = paydayFor(start.getUTCFullYear(), start.getUTCMonth());
+  return sameMonth >= start ? sameMonth : paydayFor(start.getUTCFullYear(), start.getUTCMonth() + 1);
 }
 
 export const hrKnowledge: HrKnowledgeEntry[] = [
@@ -25,9 +36,9 @@ export const hrKnowledge: HrKnowledgeEntry[] = [
     keywords: ["pay", "paid", "salary", "payday", "pay day", "first pay", "payslip", "wage", "when do i get paid"],
     answer: (ctx) => {
       const base =
-        "Colleagues are paid monthly, on the last working day of the month. Your payslip appears in Workday a few days before.";
+        "Colleagues are paid monthly, on the 20th of each month. If the 20th falls on a weekend, payday is the Friday before. Your payslip appears in Workday a few days before.";
       if (!ctx.startDate) return base;
-      return `${base} As you start on ${longDate.format(new Date(`${ctx.startDate}T12:00:00Z`))}, your first pay should arrive on ${longDate.format(lastWorkingDayOfMonth(ctx.startDate))}, covering the days you've worked that month.`;
+      return `${base} As you start on ${longDate.format(new Date(`${ctx.startDate}T12:00:00Z`))}, your first payday should be ${longDate.format(firstPaydayFrom(ctx.startDate))}.`;
     },
     source: "Pay and payroll guide",
     followUps: ["How do I read my payslip?", "How do I change my bank details?"],
