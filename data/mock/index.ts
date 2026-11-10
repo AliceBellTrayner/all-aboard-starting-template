@@ -7,6 +7,7 @@
  */
 import type {
   BuddyDashboard,
+  ChatMessage,
   ManagerDashboard,
   NotificationItem,
   OnboardingJourney,
@@ -19,6 +20,7 @@ import { PERSONA_ROLES } from "@/types";
 import { jamesOnboardingJourney } from "./onboarding";
 import { notifications } from "./notifications";
 import { buddyDashboards, managerDashboards } from "./dashboards";
+import { chatMessages } from "./chats";
 
 export { PERSONA_IDS, DEMO_STARTER_ID, organisation } from "./personas";
 export { PERSONA_ROLES } from "@/types";
@@ -64,6 +66,11 @@ export function getManagerDashboard(managerId: string): ManagerDashboard | undef
 
 export function getBuddyDashboard(buddyId: string): BuddyDashboard | undefined {
   return buddyDashboards.find((d) => d.buddyId === buddyId);
+}
+
+/** All seed chat messages, oldest first. */
+export function getChatMessages(): ChatMessage[] {
+  return [...chatMessages].sort((a, b) => a.sentAt.localeCompare(b.sentAt));
 }
 
 /** Every buddy dashboard that supports the given starter, team buddy first. */

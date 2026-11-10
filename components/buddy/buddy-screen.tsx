@@ -1,21 +1,33 @@
 "use client";
 
-import { useState, type ReactNode } from "react";
+import { useCallback, useState, type ReactNode } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { CalendarDays, Check, Coffee, Hand, MapPin, MessageCircle, RefreshCw, Sparkles, Timer } from "lucide-react";
+import {
+  CalendarDays,
+  Check,
+  Coffee,
+  Hand,
+  MapPin,
+  MessageCircle,
+  RefreshCw,
+  Sparkles,
+  Timer,
+} from "lucide-react";
 import {
   getBuddyDashboard,
   getBuddyDashboardsForStarter,
+  getChatMessages,
   getManagerDashboard,
   getPersonaById,
   getRoleDefinition,
   type BuddyDashboard,
   type Persona,
 } from "@/data/mock";
-import type { CoffeeMeeting, StarterProfileSummary, SuggestedActivity } from "@/types";
+import type { ChatMessage, CoffeeMeeting, StarterProfileSummary, SuggestedActivity } from "@/types";
 import { useUserRole } from "@/context/user-role";
 import { PersonaAvatar } from "@/components/role-switcher";
 import { cn } from "@/lib/utils";
+import { BuddyChatSheet, ChatBubbleButton } from "./buddy-chat";
 
 /* ---------- Formatting ---------- */
 
@@ -39,6 +51,10 @@ function countdownLabel(isoDate: string): string {
   if (days === 1) return "Starts tomorrow";
   if (days === 0) return "Starts today";
   return `Started ${dayMonth.format(new Date(isoDate))}`;
+}
+
+function personasFor(ids: string[]): Persona[] {
+  return ids.map((id) => getPersonaById(id)).filter((p): p is Persona => Boolean(p));
 }
 
 function sharedInterests(a: string[], b: string[]): string[] {
@@ -83,12 +99,25 @@ function Chip({ children, highlight = false }: { children: ReactNode; highlight?
   );
 }
 
-function ScreenHeader({ eyebrow, title, subtitle }: { eyebrow: string; title: string; subtitle: string }) {
+function ScreenHeader({
+  eyebrow,
+  title,
+  subtitle,
+  action,
+}: {
+  eyebrow: string;
+  title: string;
+  subtitle: string;
+  action?: ReactNode;
+}) {
   return (
-    <header className="px-1">
-      <p className="text-[11px] font-extrabold uppercase tracking-[0.16em] text-muted-ink">{eyebrow}</p>
-      <h2 className="text-2xl font-black leading-tight tracking-tight text-ink">{title}</h2>
-      <p className="mt-1 text-sm font-semibold text-muted-ink">{subtitle}</p>
+    <header className="flex items-start gap-3 px-1">
+      <div className="min-w-0 flex-1">
+        <p className="text-[11px] font-extrabold uppercase tracking-[0.16em] text-muted-ink">{eyebrow}</p>
+        <h2 className="text-2xl font-black leading-tight tracking-tight text-ink">{title}</h2>
+        <p className="mt-1 text-sm font-semibold text-muted-ink">{subtitle}</p>
+      </div>
+      {action}
     </header>
   );
 }
@@ -312,8 +341,10 @@ function ActivityList({ items }: { items: SuggestedActivity[] }) {
 
 /* ---------- Role views ---------- */
 
+type ViewProps = { persona: Persona; onOpenChat: (contacts: Persona[]) => void };
+
 /** Team buddy or job family buddy: everything needed to help the starter settle in. */
-function BuddyView({ persona }: { persona: Persona }) {
+function BuddyView({ persona, onOpenChat }: ViewProps) {
   const dashboard = getBuddyDashboard(persona.id);
   if (!dashboard) return <EmptyState message="You haven't been matched with a starter yet." />;
   const starter = dashboard.starterProfile;
@@ -327,6 +358,12 @@ function BuddyView({ persona }: { persona: Persona }) {
           isTeamBuddy
             ? `You're ${starter.firstName}'s go-to person in ${starter.team}.`
             : `You joined recently, so you know what the first months feel like.`
+        }
+        action={
+          <ChatBubbleButton
+            label={`Chat with ${starter.firstName}`}
+            onClick={() => onOpenChat(personasFor([starter.personaId]))}
+          />
         }
       />
       <StarterCard profile={starter} viewerInterests={persona.interests} />
@@ -349,7 +386,7 @@ function buddyIntro(buddy: Persona, starter: Persona): string {
 }
 
 /** New starter: meet the two people helping them in. */
-function StarterView({ persona }: { persona: Persona }) {
+function StarterView({ persona, onOpenChat }: ViewProps) {
   const dashboards = getBuddyDashboardsForStarter(persona.id);
   return (
     <>
@@ -357,6 +394,12 @@ function StarterView({ persona }: { persona: Persona }) {
         eyebrow="Your buddies"
         title={`You've got ${dashboards.length === 1 ? "a buddy" : `${dashboards.length} buddies`}, ${persona.firstName}`}
         subtitle="One knows your team, one knows your role. Say hello before day one."
+        action={
+          <ChatBubbleButton
+            label="Chat with your buddies"
+            onClick={() => onOpenChat(personasFor(dashboards.map((d) => d.buddyId)))}
+          />
+        }
       />
       {dashboards.length === 0 && <EmptyState message="Your buddies will appear here once your manager assigns them." />}
       {dashboards.map((d) => {
@@ -391,12 +434,19 @@ function StarterView({ persona }: { persona: Persona }) {
               </p>
             )}
             <div className="mt-3.5 flex gap-2">
-              <ActionButton
-                icon={<Hand className="h-4 w-4" strokeWidth={2.6} />}
-                label="Say hello"
-                doneLabel="Wave sent"
-                variant={d.upcomingCoffee ? "primary" : "soft"}
-              />
+              <motion.button
+                type="button"
+                whileTap={{ scale: 0.95 }}
+                onClick={() => onOpenChat([buddy])}
+                aria-label={`Say hello to ${buddy.firstName}`}
+                className={cn(
+                  "flex flex-1 items-center justify-center gap-1.5 rounded-full px-4 py-2.5 text-xs font-black outline-none focus-visible:ring-4 focus-visible:ring-primary/30",
+                  d.upcomingCoffee ? "bg-primary text-white" : "bg-ink/5 text-ink hover:bg-ink/10",
+                )}
+              >
+                <MessageCircle className="h-4 w-4" strokeWidth={2.6} />
+                Say Hello
+              </motion.button>
               {!d.upcomingCoffee && (
                 <ActionButton icon={<Coffee className="h-4 w-4" strokeWidth={2.6} />} label="Book coffee" doneLabel="Requested" />
               )}
@@ -409,7 +459,7 @@ function StarterView({ persona }: { persona: Persona }) {
 }
 
 /** Line manager: who is buddying the starter and whether they have connected yet. */
-function ManagerView({ persona }: { persona: Persona }) {
+function ManagerView({ persona, onOpenChat }: ViewProps) {
   const managerDashboard = getManagerDashboard(persona.id);
   const starter = managerDashboard ? getPersonaById(managerDashboard.starterId) : undefined;
   if (!managerDashboard || !starter) return <EmptyState message="No new starters to buddy up right now." />;
@@ -422,6 +472,12 @@ function ManagerView({ persona }: { persona: Persona }) {
         eyebrow="Buddy overview"
         title={`${starter.firstName}'s buddies`}
         subtitle={`${connected} of ${dashboards.length} buddies have a coffee booked with ${starter.firstName}.`}
+        action={
+          <ChatBubbleButton
+            label={`Chat with ${starter.firstName}'s buddies`}
+            onClick={() => onOpenChat(personasFor(dashboards.map((d) => d.buddyId)))}
+          />
+        }
       />
       {dashboards.map((d) => {
         const buddy = getPersonaById(d.buddyId);
@@ -480,26 +536,61 @@ function EmptyState({ message }: { message: string }) {
 
 export function BuddyScreen() {
   const { role, persona } = useUserRole();
+  // Chat lives here so messages persist across role switches (in memory only).
+  const [messages, setMessages] = useState<ChatMessage[]>(getChatMessages);
+  const [chatContacts, setChatContacts] = useState<Persona[]>([]);
+  const [chatOpen, setChatOpen] = useState(false);
+
+  const openChat = useCallback((contacts: Persona[]) => {
+    setChatContacts(contacts);
+    setChatOpen(true);
+  }, []);
+  const closeChat = useCallback(() => setChatOpen(false), []);
+
+  function send(recipientId: string, body: string) {
+    setMessages((prev) => [
+      ...prev,
+      {
+        id: `local-${Date.now()}-${prev.length}`,
+        senderId: persona.id,
+        recipientId,
+        body,
+        sentAt: new Date().toISOString(),
+      },
+    ]);
+  }
+
   return (
-    <div className="no-scrollbar h-full overflow-y-auto overscroll-contain bg-gradient-to-b from-[#e6f8ff] to-[#f4f8ff]">
-      <AnimatePresence mode="wait">
-        <motion.div
-          key={role}
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -8 }}
-          transition={{ duration: 0.3, ease: "easeOut" }}
-          className="flex flex-col gap-3.5 px-4 pb-36 pt-[88px]"
-        >
-          {role === "new-starter" ? (
-            <StarterView persona={persona} />
-          ) : role === "line-manager" ? (
-            <ManagerView persona={persona} />
-          ) : (
-            <BuddyView persona={persona} />
-          )}
-        </motion.div>
-      </AnimatePresence>
+    <div className="relative h-full">
+      <div className="no-scrollbar h-full overflow-y-auto overscroll-contain bg-gradient-to-b from-[#e6f8ff] to-[#f4f8ff]">
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={role}
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -8 }}
+            transition={{ duration: 0.3, ease: "easeOut" }}
+            className="flex flex-col gap-3.5 px-4 pb-36 pt-[88px]"
+          >
+            {role === "new-starter" ? (
+              <StarterView persona={persona} onOpenChat={openChat} />
+            ) : role === "line-manager" ? (
+              <ManagerView persona={persona} onOpenChat={openChat} />
+            ) : (
+              <BuddyView persona={persona} onOpenChat={openChat} />
+            )}
+          </motion.div>
+        </AnimatePresence>
+      </div>
+
+      <BuddyChatSheet
+        open={chatOpen}
+        onClose={closeChat}
+        viewer={persona}
+        contacts={chatContacts}
+        messages={messages}
+        onSend={send}
+      />
     </div>
   );
 }
