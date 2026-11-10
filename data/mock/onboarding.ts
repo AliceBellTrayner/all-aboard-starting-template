@@ -159,6 +159,20 @@ export const milestones: Milestone[] = [
         department: "it",
       },
       {
+        id: "d1-training",
+        milestoneId: "day-one",
+        title: "Complete mandatory training",
+        detail: "Data protection, financial crime and Consumer Duty modules, once you have your laptop.",
+        steps: [
+          "Once you have collected your laptop, sign in and open the learning portal.",
+          "Go to My Required Learning.",
+          "Complete the Data Protection, Financial Crime and Consumer Duty modules.",
+          "Pass the short quiz at the end of each one. You can retake them.",
+          "Allow about three hours in total, fitted around your Day One meetings.",
+        ],
+        owner: "starter",
+      },
+      {
         id: "d1-manager",
         milestoneId: "day-one",
         title: "Meet manager",
@@ -217,19 +231,6 @@ export const milestones: Milestone[] = [
         ],
         owner: "manager",
         department: "it",
-      },
-      {
-        id: "fw-training",
-        milestoneId: "first-week",
-        title: "Complete mandatory training",
-        detail: "Data protection, financial crime and Consumer Duty modules.",
-        steps: [
-          "Open the learning portal and go to My Required Learning.",
-          "Complete the Data Protection, Financial Crime and Consumer Duty modules.",
-          "Pass the short quiz at the end of each one. You can retake them.",
-          "Allow about three hours in total, and finish by the end of your first week.",
-        ],
-        owner: "starter",
       },
       {
         id: "fw-stakeholders",
