@@ -1,7 +1,7 @@
 # HorsePower: mentor pitch script
 
-Accompanies `HorsePower-mentor-pitch.pptx` (5 slides). The same script is in each slide's speaker notes.
-Total speaking time is about 5.5 minutes at a steady pace.
+Accompanies `HorsePower-mentor-pitch.pptx` (6 slides). The same script is in each slide's speaker notes.
+Total speaking time is about 6 minutes at a steady pace.
 
 ## Slide 1: Why?
 
@@ -29,7 +29,7 @@ That's the difference. Choreography arranges the steps. Dressage builds the stre
 
 ## Slide 3: Why a horseshoe, and why HorsePower
 
-*About 65 seconds*
+*About 45 seconds*
 
 That thinking gave us our symbol and our name.
 
@@ -37,9 +37,17 @@ The symbol is the horseshoe. A horseshoe is a symbol of good luck, protection an
 
 The name is HorsePower. We chose it so that the colleague can gain momentum in their new career, from their first day and not their first quarter.
 
-And it starts before day one. The kit box that's sent out to each new starter will have a large QR code on the inside of the lid. Open the box, scan the code, and you're in the HorsePower app.
+## Slide 4: It starts in the kit box
 
-## Slide 4: One guided journey, from offer to day 90
+*About 40 seconds*
+
+So how does a new colleague find HorsePower? It starts with a box.
+
+This is the welcome kit box that's sent out to each new starter. The lid already says "Your herd awaits" and "Raring to go". We're adding the way in.
+
+The kit box that is sent out will have a large QR code on the inside of the lid for the HorsePower app. So the moment you lift the lid, it's the first thing you see. Open the box, scan the code, and you're in the app, at the start of your journey.
+
+## Slide 5: One guided journey, from offer to day 90
 
 *About 95 seconds*
 
@@ -51,7 +59,7 @@ One deliberate design choice: the line manager is responsible for the HR and IT 
 
 And connection is built in. There are two buddies to say hello to before day one, and an AI chat buddy for questions about pay, benefits and policies at any time, including weekends.
 
-## Slide 5: Prototype today, production tomorrow
+## Slide 6: Prototype today, production tomorrow
 
 *About 50 seconds*
 
