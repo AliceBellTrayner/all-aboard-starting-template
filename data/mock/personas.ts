@@ -84,7 +84,7 @@ export const roleDefinitions: RoleDefinition[] = [
 ];
 
 export const organisation = {
-  name: "Brightwater Bank",
+  name: "Lloyds Banking Group",
 } as const;
 
 /** The starter whose journey the demo follows. */
