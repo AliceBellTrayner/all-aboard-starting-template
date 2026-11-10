@@ -111,7 +111,7 @@ function Confetti() {
   );
 }
 
-/** Gold horseshoe badge, a nod to the HorseShoe brand and "good luck". */
+/** Gold horseshoe badge: a lucky horseshoe, in keeping with the HorsePower horse theme. */
 function HorseshoeBadge() {
   return (
     <span className="gold-fill relative flex h-20 w-20 items-center justify-center rounded-full shadow-[0_14px_30px_-10px_rgba(216,146,26,0.8)] ring-4 ring-white">

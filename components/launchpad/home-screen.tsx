@@ -41,7 +41,7 @@ export function HomeScreen({ onContinue, onProfile }: HomeScreenProps) {
     <div className="relative flex h-full flex-col overflow-hidden bg-gradient-to-b from-[#e3f6ea] to-[#f4f8ff]">
       <header className="absolute inset-x-0 top-0 z-40 flex items-center justify-between px-4 pt-[max(0.75rem,env(safe-area-inset-top))]">
         <span className="rounded-full bg-white/85 px-3 py-1.5 text-sm font-black tracking-tight text-ink shadow-[0_14px_30px_-16px_rgba(23,32,58,0.5)] ring-1 ring-white/70 backdrop-blur-xl">
-          Horse<span className="text-meadow-600">Shoe</span>
+          Horse<span className="text-meadow-600">Power</span>
         </span>
         <div className="flex items-center gap-2">
           <RoleSwitcher compact />
