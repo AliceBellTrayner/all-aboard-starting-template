@@ -1,22 +1,37 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { ArrowRight, Bell, MapPin, Navigation, UserRound, X } from "lucide-react";
+import { ArrowRight, Bell, CalendarDays, MapPin, Navigation, Settings2, UserRound, X } from "lucide-react";
 import { useUserRole } from "@/context/user-role";
-import { DEMO_STARTER_ID, getNotificationsFor, getPersonaById } from "@/data/mock";
+import { DEMO_STARTER_ID, SHORTCUTS, getNotificationsFor, getPersonaById } from "@/data/mock";
 import { RoleSwitcher } from "@/components/role-switcher";
-import type { NotificationItem } from "@/types";
+import { NOTIFICATION_CATEGORY_KINDS, type NotificationItem, type ShortcutId } from "@/types";
+import type { TabId } from "@/components/launchpad/bottom-nav";
+import type { ProfileSection } from "@/components/profile/profile-screen";
+import { displayName, useProfile } from "@/components/profile/use-profile";
+import { SHORTCUT_ICON } from "@/components/profile/shortcut-icons";
+import { notificationSummary } from "@/components/profile/notification-preferences";
 
 const GOOGLE_MAPS_API_KEY = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
 const OFFICE_ADDRESS = process.env.NEXT_PUBLIC_OFFICE_ADDRESS;
 
 type HomeScreenProps = {
   onContinue: () => void;
-  onProfile: () => void;
+  onProfile: (section?: ProfileSection) => void;
+  onNavigate: (tab: TabId) => void;
 };
 
-export function HomeScreen({ onContinue, onProfile }: HomeScreenProps) {
+/** Where each shortcut goes. "notifications" opens the sheet instead of a tab. */
+const SHORTCUT_TAB: Record<Exclude<ShortcutId, "notifications">, TabId> = {
+  journey: "journey",
+  tasks: "tasks",
+  "app-store": "tools",
+  buddy: "buddy",
+  "ask-hr": "buddy",
+};
+
+export function HomeScreen({ onContinue, onProfile, onNavigate }: HomeScreenProps) {
   const { persona: viewer } = useUserRole();
   const starterPersona = getPersonaById(DEMO_STARTER_ID);
   if (!starterPersona || starterPersona.role !== "new-starter") {
@@ -24,7 +39,22 @@ export function HomeScreen({ onContinue, onProfile }: HomeScreenProps) {
   }
   const starter = starterPersona;
   const manager = getPersonaById(starter.managerId);
-  const notifications = useMemo(() => getNotificationsFor(viewer.id), [viewer.id]);
+  const { profile } = useProfile();
+  // Greet the starter by their preferred name when they are the one viewing.
+  const greetingName = viewer.id === starter.id ? displayName(profile, starter.firstName) : starter.firstName;
+  const allNotifications = useMemo(() => getNotificationsFor(viewer.id), [viewer.id]);
+  // Respect the categories chosen in Profile > Notifications.
+  const notifications = useMemo(() => {
+    const allowed = new Set(
+      (Object.keys(NOTIFICATION_CATEGORY_KINDS) as (keyof typeof NOTIFICATION_CATEGORY_KINDS)[])
+        .filter((c) => profile.notifications.categories[c])
+        .flatMap((c) => NOTIFICATION_CATEGORY_KINDS[c]),
+    );
+    return allNotifications.filter((n) => allowed.has(n.kind));
+  }, [allNotifications, profile.notifications.categories]);
+  const hiddenCount = allNotifications.length - notifications.length;
+  const shortcuts = profile.home.shortcuts;
+  const cards = profile.home.cards;
   const unreadCount = notifications.filter((notification) => !notification.read).length;
   const address = OFFICE_ADDRESS?.trim() || `${starter.location}, UK`;
   const mapUrl = useMemo(() => {
@@ -60,7 +90,7 @@ export function HomeScreen({ onContinue, onProfile }: HomeScreenProps) {
           </button>
           <button
             type="button"
-            onClick={onProfile}
+            onClick={() => onProfile()}
             aria-label="Profile"
             className="flex h-11 w-11 items-center justify-center rounded-full bg-white text-[#123b2b] shadow-sm outline-none transition hover:bg-[#e6f4eb] focus-visible:ring-4 focus-visible:ring-white/60"
           >
@@ -73,12 +103,13 @@ export function HomeScreen({ onContinue, onProfile }: HomeScreenProps) {
         <section className="relative overflow-hidden bg-gradient-to-b from-[#3fb2f2] via-[#8fd9fb] to-[#d9f6ff] px-6 pb-24 pt-28 text-ink">
           <MeadowBackdrop />
           <div className="relative">
-            <p className="text-lg font-extrabold text-[#1d4f7a]">Hello {starter.firstName},</p>
+            <p className="text-lg font-extrabold text-[#1d4f7a]">Hello {greetingName},</p>
             <h1 className="mt-4 text-[2.4rem] font-black leading-[1.07] tracking-tight">
               A new chapter.
               <br />A place for you.
             </h1>
-            <p className="mt-4 text-base font-semibold text-ink/85">Welcome to the team, {starter.firstName}.</p>
+            <StartCountdown startDate={starter.startDate} />
+            <p className="mt-4 text-base font-semibold text-ink/85">Welcome to the team, {greetingName}.</p>
             <p className="mt-2 text-sm font-bold text-ink/75">
               {starter.jobTitle} <span className="px-1.5 text-meadow-600">·</span> {starter.location}
             </p>
@@ -86,6 +117,41 @@ export function HomeScreen({ onContinue, onProfile }: HomeScreenProps) {
         </section>
 
         <div className="relative -mt-1 flex flex-col gap-3.5 bg-gradient-to-b from-[#e3f6ea] to-[#f4f8ff] px-5 pt-4">
+          {shortcuts.length > 0 && (
+            <nav aria-label="Shortcuts">
+              <ul role="list" className="grid grid-cols-4 gap-2">
+                {shortcuts.map((id) => {
+                  const Icon = SHORTCUT_ICON[id];
+                  const label = SHORTCUTS.find((s) => s.id === id)?.label ?? id;
+                  return (
+                    <li key={id}>
+                      <motion.button
+                        type="button"
+                        whileTap={{ scale: 0.94 }}
+                        onClick={() => (id === "notifications" ? setNotificationsOpen(true) : onNavigate(SHORTCUT_TAB[id]))}
+                        className="flex w-full flex-col items-center gap-1.5 rounded-2xl bg-white/95 px-1 py-3 text-center shadow-[0_12px_30px_-22px_rgba(27,46,34,0.38)] ring-1 ring-[#dcebe1] outline-none focus-visible:ring-4 focus-visible:ring-[#2f9e6a]/35"
+                      >
+                        <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#e3f6ea] text-[#2e7950]">
+                          <Icon className="h-5 w-5" strokeWidth={2.4} />
+                        </span>
+                        <span className="text-[11px] font-black leading-tight text-[#172a20]">{label}</span>
+                      </motion.button>
+                    </li>
+                  );
+                })}
+              </ul>
+              <button
+                type="button"
+                onClick={() => onProfile("home")}
+                className="mx-auto mt-1.5 flex items-center gap-1 rounded-full px-3 py-1 text-[11px] font-extrabold text-[#2e7950] outline-none focus-visible:ring-4 focus-visible:ring-[#2f9e6a]/30"
+              >
+                <Settings2 className="h-3.5 w-3.5" strokeWidth={2.6} />
+                Edit shortcuts
+              </button>
+            </nav>
+          )}
+
+          {cards.recruiter && (
           <section className="rounded-[1.6rem] border border-[#dcebe1] bg-white/95 p-4 shadow-[0_12px_30px_-22px_rgba(27,46,34,0.38)]">
             <div className="flex items-center gap-3">
               <div
@@ -104,7 +170,9 @@ export function HomeScreen({ onContinue, onProfile }: HomeScreenProps) {
               “You’ve got this. I’m here if you need anything before day one.”
             </p>
           </section>
+          )}
 
+          {cards.manager && (
           <section className="rounded-[1.6rem] border border-[#dcebe1] bg-white/95 p-4 shadow-[0_12px_30px_-22px_rgba(27,46,34,0.38)]">
             <p className="text-[11px] font-extrabold uppercase tracking-[0.12em] text-[#647368]">A note from your manager</p>
             <p className="mt-2 text-sm font-semibold leading-relaxed text-[#26352c]">
@@ -112,7 +180,9 @@ export function HomeScreen({ onContinue, onProfile }: HomeScreenProps) {
             </p>
             <p className="mt-2 text-xs font-semibold text-[#778078]">{manager?.fullName ?? "Your line manager"} · Line manager</p>
           </section>
+          )}
 
+          {cards.office && (
           <section className="overflow-hidden rounded-[1.6rem] border border-[#dcebe1] bg-white/95 shadow-[0_12px_30px_-22px_rgba(27,46,34,0.38)]">
             <div className="flex items-center gap-2 px-4 pb-2 pt-3.5">
               <MapPin className="h-4 w-4 text-[#2f8054]" />
@@ -143,6 +213,7 @@ export function HomeScreen({ onContinue, onProfile }: HomeScreenProps) {
               <Navigation className="h-4 w-4" />
             </a>
           </section>
+          )}
 
         </div>
       </div>
@@ -162,7 +233,82 @@ export function HomeScreen({ onContinue, onProfile }: HomeScreenProps) {
         notifications={notifications}
         open={notificationsOpen}
         onClose={() => setNotificationsOpen(false)}
+        summary={notificationSummary(profile.notifications)}
+        hiddenCount={hiddenCount}
+        onManage={() => {
+          setNotificationsOpen(false);
+          onProfile("notifications");
+        }}
       />
+    </div>
+  );
+}
+
+const startDateLabel = new Intl.DateTimeFormat("en-GB", {
+  weekday: "long",
+  day: "numeric",
+  month: "long",
+  timeZone: "Europe/London",
+});
+
+/** Whole days from today (local) until an ISO date. Negative once it has passed. */
+function daysUntil(isoDate: string): number {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  return Math.round((new Date(`${isoDate}T00:00:00`).getTime() - today.getTime()) / 86_400_000);
+}
+
+/**
+ * Countdown to the starter's first day. The day count depends on "today", so it
+ * is filled in after mount; the server renders the date only, at the same size.
+ */
+function StartCountdown({ startDate }: { startDate: string }) {
+  const [days, setDays] = useState<number | null>(null);
+  useEffect(() => setDays(daysUntil(startDate)), [startDate]);
+
+  const dateText = startDateLabel.format(new Date(`${startDate}T12:00:00Z`));
+  const big = days === null ? null : days > 1 ? String(days) : days === 1 ? "1" : days === 0 ? "Today" : null;
+  const unit = days === null ? "" : days > 1 ? "days" : days === 1 ? "day" : "";
+  const headline =
+    days === null
+      ? "Your first day"
+      : days > 1
+        ? "until your first day"
+        : days === 1
+          ? "until your first day. It's tomorrow!"
+          : days === 0
+            ? "is your first day. Welcome!"
+            : `You started ${Math.abs(days)} ${Math.abs(days) === 1 ? "day" : "days"} ago`;
+
+  return (
+    <div
+      role="timer"
+      aria-live="off"
+      aria-label={days !== null && days > 0 ? `${days} ${unit} until your first day, ${dateText}` : `First day: ${dateText}`}
+      className="mt-5 inline-flex items-center gap-3.5 rounded-[1.4rem] bg-white/85 py-2.5 pl-2.5 pr-5 shadow-[0_14px_30px_-16px_rgba(23,32,58,0.5)] ring-1 ring-white/70 backdrop-blur-xl"
+    >
+      <span className="gold-fill flex h-14 min-w-14 flex-col items-center justify-center rounded-2xl px-2 text-[#5a3a00] shadow-[inset_0_-3px_0_rgba(0,0,0,0.12)]">
+        {big ? (
+          <>
+            <motion.span
+              key={big}
+              initial={{ scale: 0.6, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ type: "spring", stiffness: 420, damping: 18 }}
+              className={big === "Today" ? "text-sm font-black" : "text-2xl font-black leading-none tabular-nums"}
+            >
+              {big}
+            </motion.span>
+            {unit && <span className="text-[10px] font-extrabold uppercase tracking-wide">{unit}</span>}
+          </>
+        ) : (
+          <CalendarDays className="h-6 w-6" strokeWidth={2.4} aria-hidden="true" />
+        )}
+      </span>
+      <span className="min-w-0">
+        <span className="block text-sm font-black leading-tight text-ink">{headline}</span>
+        <span className="block text-xs font-bold text-[#1d4f7a]">{dateText}</span>
+      </span>
     </div>
   );
 }
@@ -176,7 +322,7 @@ function MeadowBackdrop() {
     <div className="pointer-events-none absolute inset-0" aria-hidden="true">
       <div className="absolute -right-16 -top-16 h-56 w-56 rounded-full bg-[radial-gradient(circle,#fff8c9_0%,rgba(255,248,201,0.45)_45%,rgba(255,248,201,0)_70%)]" />
       <div className="absolute right-10 top-10 h-12 w-12 rounded-full bg-[#ffe27a] shadow-[0_0_40px_10px_rgba(255,226,122,0.55)]" />
-      <svg viewBox="0 0 120 44" className="absolute left-[-18px] top-[96px] w-32 opacity-90">
+      <svg viewBox="0 0 120 44" className="absolute right-[96px] top-[92px] w-28 opacity-90">
         <g fill="#ffffff">
           <circle cx="24" cy="26" r="14" />
           <circle cx="48" cy="18" r="18" />
@@ -209,10 +355,16 @@ function NotificationSheet({
   notifications,
   open,
   onClose,
+  summary,
+  hiddenCount,
+  onManage,
 }: {
   notifications: NotificationItem[];
   open: boolean;
   onClose: () => void;
+  summary: string;
+  hiddenCount: number;
+  onManage: () => void;
 }) {
   return (
     <AnimatePresence>
@@ -254,7 +406,23 @@ function NotificationSheet({
                 <X className="h-5 w-5" />
               </button>
             </div>
-            <ul className="no-scrollbar mt-4 max-h-[55dvh] space-y-2 overflow-y-auto">
+            <button
+              type="button"
+              onClick={onManage}
+              className="mt-3 flex w-full items-center gap-2.5 rounded-2xl bg-sky-100 px-3.5 py-2.5 text-left outline-none focus-visible:ring-4 focus-visible:ring-primary/30"
+            >
+              <Settings2 className="h-4 w-4 shrink-0 text-primary" strokeWidth={2.6} />
+              <span className="min-w-0 flex-1">
+                <span className="block text-xs font-black text-ink">{summary}</span>
+                {hiddenCount > 0 && (
+                  <span className="block text-[11px] font-semibold text-muted-ink">
+                    {hiddenCount} {hiddenCount === 1 ? "update" : "updates"} hidden by your settings
+                  </span>
+                )}
+              </span>
+              <span className="text-xs font-black text-primary">Manage</span>
+            </button>
+            <ul className="no-scrollbar mt-3 max-h-[55dvh] space-y-2 overflow-y-auto">
               {notifications.length ? notifications.map((notification) => (
                 <li key={notification.id} className="rounded-2xl bg-white p-3.5 shadow-sm ring-1 ring-ink/5">
                   <div className="flex items-start gap-2.5">

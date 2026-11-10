@@ -10,10 +10,17 @@ import { BuddyScreen } from "@/components/buddy/buddy-screen";
 import { RoleSwitcher } from "@/components/role-switcher";
 import { HomeScreen } from "@/components/launchpad/home-screen";
 import { useUserRole } from "@/context/user-role";
+import { ProfileScreen, type ProfileSection } from "@/components/profile/profile-screen";
 
 export default function Home() {
   const { role, persona } = useUserRole();
   const [tab, setTab] = useState<TabId>("home");
+  const [profileSection, setProfileSection] = useState<ProfileSection>("overview");
+
+  function openProfile(section: ProfileSection = "overview") {
+    setProfileSection(section);
+    setTab("profile");
+  }
   const [celebrateJourney, setCelebrateJourney] = useState(false);
   const finishJourneyCelebration = useCallback(() => setCelebrateJourney(false), []);
 
@@ -52,7 +59,7 @@ export default function Home() {
             transition={{ duration: 0.5 }}
           >
             {tab === "home" ? (
-              <HomeScreen onContinue={continueToJourney} onProfile={() => setTab("profile")} />
+              <HomeScreen onContinue={continueToJourney} onProfile={openProfile} onNavigate={changeTab} />
             ) : tab === "journey" ? (
               <JourneyScreen
                 celebrateOnEntry={celebrateJourney}
@@ -65,7 +72,7 @@ export default function Home() {
             ) : tab === "buddy" ? (
               <BuddyScreen />
             ) : (
-              <ComingSoon />
+              <ProfileScreen initialSection={profileSection} onBackHome={() => setTab("home")} />
             )}
             {tab !== "home" && (
               <div className="absolute inset-x-0 top-0 z-40 px-4 pt-[max(0.75rem,env(safe-area-inset-top))]">
@@ -77,14 +84,5 @@ export default function Home() {
         </AnimatePresence>
       </div>
     </main>
-  );
-}
-function ComingSoon() {
-  return (
-    <div className="flex h-full flex-col items-center justify-center bg-gradient-to-b from-[#e6f8ff] to-[#f4f8ff] px-8 pb-28 text-center">
-      <p className="text-xs font-extrabold uppercase tracking-[0.18em] text-muted-ink">Profile</p>
-      <p className="mt-2 text-xl font-black text-ink">Your profile is still being built</p>
-      <p className="mt-2 text-sm font-semibold text-muted-ink">Your onboarding details will live here.</p>
-    </div>
   );
 }

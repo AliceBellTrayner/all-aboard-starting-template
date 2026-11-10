@@ -1,52 +1,25 @@
 "use client";
 
-import { useEffect, useState, type ReactNode } from "react";
+import type { ReactNode } from "react";
 import { motion } from "framer-motion";
 import { Check, ChevronLeft } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-/**
- * State persisted to localStorage so choices survive tab switches and reloads.
- * Starts from `initial` and reads storage after mount to keep render deterministic.
- */
-export function usePersistentState<T>(key: string, initial: T) {
-  const [value, setValue] = useState<T>(initial);
-  const [loaded, setLoaded] = useState(false);
-
-  useEffect(() => {
-    try {
-      const raw = window.localStorage.getItem(key);
-      if (raw) setValue({ ...initial, ...JSON.parse(raw) });
-    } catch {
-      // Ignore unreadable storage; defaults are fine.
-    }
-    setLoaded(true);
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- read once per key
-  }, [key]);
-
-  useEffect(() => {
-    if (!loaded) return;
-    try {
-      window.localStorage.setItem(key, JSON.stringify(value));
-    } catch {
-      // Storage may be unavailable; in-memory state still works.
-    }
-  }, [key, value, loaded]);
-
-  return [value, setValue] as const;
-}
+export { usePersistentState } from "@/lib/use-persistent-state";
 
 /** Full-height layout for a single focused task: back, title, body and one primary action. */
 export function ToolShell({
   title,
   subtitle,
   onBack,
+  backLabel = "Tools",
   children,
   action,
 }: {
   title: string;
   subtitle: string;
   onBack: () => void;
+  backLabel?: string;
   children: ReactNode;
   action?: ReactNode;
 }) {
@@ -59,7 +32,7 @@ export function ToolShell({
           className="-ml-1 mb-2 flex items-center gap-0.5 rounded-full py-1 pr-3 text-xs font-black text-primary outline-none focus-visible:ring-4 focus-visible:ring-primary/30"
         >
           <ChevronLeft className="h-4 w-4" strokeWidth={3} />
-          Tools
+          {backLabel}
         </button>
         <h2 className="text-2xl font-black leading-tight tracking-tight text-ink">{title}</h2>
         <p className="mt-1 text-sm font-semibold text-muted-ink">{subtitle}</p>

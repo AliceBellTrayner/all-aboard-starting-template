@@ -99,6 +99,8 @@ export function getHrSuggestedQuestions(): string[] {
   return hrSuggestedQuestions;
 }
 
+export { HOME_CARDS, MAX_SHORTCUTS, SHORTCUTS, defaultProfileFor } from "./profile";
+
 /** All seed chat messages, oldest first. */
 export function getChatMessages(): ChatMessage[] {
   return [...chatMessages].sort((a, b) => a.sentAt.localeCompare(b.sentAt));
