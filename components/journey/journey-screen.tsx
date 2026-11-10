@@ -1,13 +1,14 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { motion } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import { getPersonaById, organisation } from "@/data/mock";
 import { useUserRole } from "@/context/user-role";
 import { useJourneyProgress } from "@/context/journey-progress";
 import { canActOnTask } from "@/lib/task-ownership";
 import type { MilestoneStatus } from "@/types";
 import { Landscape } from "./landscape";
+import { JourneyCelebration } from "./journey-celebration";
 import { JourneyPath } from "./journey-path";
 import { MilestoneNode } from "./milestone-node";
 import { MilestoneSheet } from "./milestone-sheet";
@@ -19,6 +20,8 @@ import {
   trailFractionForMilestone,
   WAYPOINTS,
 } from "./path-geometry";
+
+const noop = () => {};
 
 function RingProgress({ value, size = 64, stroke = 7 }: { value: number; size?: number; stroke?: number }) {
   const r = (size - stroke) / 2;
@@ -49,7 +52,13 @@ function RingProgress({ value, size = 64, stroke = 7 }: { value: number; size?: 
   );
 }
 
-export function JourneyScreen() {
+export function JourneyScreen({
+  celebrateOnEntry = false,
+  onCelebrationComplete,
+}: {
+  celebrateOnEntry?: boolean;
+  onCelebrationComplete?: () => void;
+}) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
 
@@ -178,6 +187,13 @@ export function JourneyScreen() {
 
         <div className="h-36 bg-[#2c9a64]" aria-hidden="true" />
       </div>
+
+      {/* First-visit celebration, shown above everything on this screen. */}
+      <AnimatePresence>
+        {celebrateOnEntry && (
+          <JourneyCelebration starterId={journey.starterId} onDone={onCelebrationComplete ?? noop} />
+        )}
+      </AnimatePresence>
 
       <MilestoneSheet
         milestone={sheetMilestone}
