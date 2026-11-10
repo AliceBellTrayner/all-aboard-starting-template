@@ -8,15 +8,15 @@ type SplashScreenProps = {
   onStart: () => void;
 };
 
-/** Lucky horseshoe mark, used as the LaunchPad logo. */
+/** Lucky silver horseshoe mark, used as the HorseShoe logo. */
 function HorseshoeMark({ className }: { className?: string }) {
   return (
     <svg viewBox="0 0 100 100" className={className} aria-hidden="true">
       <defs>
         <linearGradient id="shoe" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="#fff3b8" />
-          <stop offset="45%" stopColor="#ffc83d" />
-          <stop offset="100%" stopColor="#c98612" />
+          <stop offset="0%" stopColor="#e6eaf0" />
+          <stop offset="50%" stopColor="#c5ccd6" />
+          <stop offset="100%" stopColor="#a6afbc" />
         </linearGradient>
       </defs>
       <path
@@ -29,14 +29,14 @@ function HorseshoeMark({ className }: { className?: string }) {
         transform="translate(0 4)"
       />
       <path d="M 24 16 V 52 A 26 26 0 0 0 76 52 V 16" fill="none" stroke="url(#shoe)" strokeWidth="16" strokeLinecap="round" />
-      <path d="M 24 16 V 52 A 26 26 0 0 0 76 52 V 16" fill="none" stroke="#fff" strokeOpacity="0.55" strokeWidth="3" strokeLinecap="round" transform="translate(-3 0)" />
+      <path d="M 24 16 V 52 A 26 26 0 0 0 76 52 V 16" fill="none" stroke="#fff" strokeOpacity="0.22" strokeWidth="3" strokeLinecap="round" transform="translate(-3 0)" />
       {[
         [24, 34],
         [24, 46],
         [76, 34],
         [76, 46],
       ].map(([cx, cy]) => (
-        <circle key={`${cx}-${cy}`} cx={cx} cy={cy} r="2.2" fill="#7a4d05" fillOpacity="0.55" />
+        <circle key={`${cx}-${cy}`} cx={cx} cy={cy} r="2.2" fill="#2f3948" fillOpacity="0.4" />
       ))}
     </svg>
   );
@@ -99,18 +99,25 @@ export function SplashScreen({ onStart }: SplashScreenProps) {
             transition={{ duration: 4, repeat: Infinity, ease: "easeInOut", delay: 1.4 }}
             className="relative flex h-36 w-36 items-center justify-center rounded-[2.5rem] bg-white/25 shadow-[0_30px_60px_-20px_rgba(15,42,74,0.5)] ring-1 ring-white/60 backdrop-blur-sm"
           >
-            <HorseshoeMark className="h-24 w-24 drop-shadow-[0_6px_10px_rgba(120,70,0,0.35)]" />
+            <HorseshoeMark className="h-24 w-24 drop-shadow-[0_6px_10px_rgba(30,45,70,0.35)]" />
           </motion.div>
         </motion.div>
 
-        <motion.h1
+        <motion.div
           initial={{ y: 16, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ delay: 0.45, duration: 0.6, ease: "easeOut" }}
-          className="mt-8 text-5xl font-black tracking-tight text-[#0f2a4a] drop-shadow-[0_2px_0_rgba(255,255,255,0.4)]"
+          className="mt-8 flex items-center justify-center gap-3 text-[#0f2a4a]"
         >
-          Launch<span className="text-[#2f2bff]">Pad</span>
-        </motion.h1>
+          <h1 className="text-[2.6rem] font-extrabold leading-none tracking-tight drop-shadow-[0_2px_0_rgba(255,255,255,0.4)]">
+            Horse<span className="text-[#2f2bff]">Shoe</span>
+          </h1>
+          <p className="border-l-2 border-[#0f2a4a]/25 pl-3 text-left text-xs font-bold leading-tight text-[#20466e]">
+            by Lloyds
+            <br />
+            Banking Group
+          </p>
+        </motion.div>
 
         <motion.p
           initial={{ y: 12, opacity: 0 }}

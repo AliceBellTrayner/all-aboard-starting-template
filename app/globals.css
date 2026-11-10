@@ -1,6 +1,6 @@
 @import "tailwindcss";
 
-/* LaunchPad design tokens (shadcn/ui-compatible variable names) */
+/* HorseShoe design tokens (shadcn/ui-compatible variable names) */
 @theme inline {
   --color-background: #f4f8ff;
   --color-foreground: #17203a;
@@ -18,7 +18,8 @@
   --color-sky-100: #e6f8ff;
   --color-coral: #ff6f61;
 
-  --font-sans: "Nunito", ui-rounded, "SF Pro Rounded", "Segoe UI Variable Display", "Segoe UI", system-ui, -apple-system, sans-serif;
+  /* --font-brand is loaded in app/layout.tsx */
+  --font-sans: var(--font-brand), "Segoe UI Variable Display", "Segoe UI", system-ui, -apple-system, sans-serif;
 
   --shadow-soft: 0 18px 40px -18px rgba(23, 32, 58, 0.35);
   --shadow-node: 0 12px 0 -2px rgba(23, 32, 58, 0.18), 0 18px 30px -10px rgba(23, 32, 58, 0.35);
