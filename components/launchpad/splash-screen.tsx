@@ -8,7 +8,7 @@ type SplashScreenProps = {
   onStart: () => void;
 };
 
-/** Lucky silver horseshoe mark, used as the HorseShoe logo. */
+/** Lucky silver horseshoe mark, used as the HorsePower logo. */
 function HorseshoeMark({ className }: { className?: string }) {
   return (
     <svg viewBox="0 0 100 100" className={className} aria-hidden="true">
@@ -107,16 +107,21 @@ export function SplashScreen({ onStart }: SplashScreenProps) {
           initial={{ y: 16, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ delay: 0.45, duration: 0.6, ease: "easeOut" }}
-          className="mt-8 flex items-center justify-center gap-3 text-[#0f2a4a]"
+          className="mt-8 flex items-center justify-center gap-2 text-[#0f2a4a] min-[440px]:gap-3"
         >
-          <h1 className="text-[2.6rem] font-extrabold leading-none tracking-tight drop-shadow-[0_2px_0_rgba(255,255,255,0.4)]">
-            Horse<span className="text-[#2f2bff]">Shoe</span>
+          {/* Sized so the name, logo and byline stay on one line from 375px wide. */}
+          <h1 className="text-[1.9rem] font-extrabold leading-none tracking-tight drop-shadow-[0_2px_0_rgba(255,255,255,0.4)] min-[440px]:text-[2.3rem]">
+            Horse<span className="text-[#006a4d]">Power</span>
           </h1>
-          <p className="border-l-2 border-[#0f2a4a]/25 pl-3 text-left text-xs font-bold leading-tight text-[#20466e]">
-            by Lloyds
-            <br />
-            Banking Group
-          </p>
+          <div className="flex items-center gap-1.5 border-l-2 border-[#0f2a4a]/25 pl-2 min-[440px]:pl-3">
+            {/* Decorative: the byline beside it already names the group. */}
+            <img src="/lbg-horse.png" alt="" width={305} height={287} className="h-7 w-auto shrink-0 min-[440px]:h-8" />
+            <p className="whitespace-nowrap text-left text-[11px] font-bold leading-tight text-[#20466e] min-[440px]:text-xs">
+              by Lloyds
+              <br />
+              Banking Group
+            </p>
+          </div>
         </motion.div>
 
         <motion.p

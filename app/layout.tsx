@@ -8,9 +8,9 @@ import { Providers } from "./providers";
 const brandFont = Nunito_Sans({ subsets: ["latin"], variable: "--font-brand", display: "swap" });
 
 export const metadata: Metadata = {
-  title: "HorseShoe by Lloyds Banking Group",
+  title: "HorsePower by Lloyds Banking Group",
   description: "A mobile-first onboarding journey for new starters (mock data).",
-  applicationName: "HorseShoe",
+  applicationName: "HorsePower",
 };
 
 export const viewport: Viewport = {
