@@ -36,7 +36,7 @@ export function Avatar({ initials, role, size = "md" }: { initials: string; role
  * Role switcher for demos. Shows the current role prominently and opens a sheet
  * to switch persona instantly. Keys 1-4 switch roles while the page has focus.
  */
-export function RoleSwitcher() {
+export function RoleSwitcher({ compact = false }: { compact?: boolean }) {
   const { role, persona, setRole, hydrated } = useUserRole();
   const [open, setOpen] = useState(false);
   const triggerRef = useRef<HTMLButtonElement>(null);
@@ -89,20 +89,29 @@ export function RoleSwitcher() {
         animate={{ y: 0, opacity: hydrated ? 1 : 0 }}
         transition={{ duration: 0.4 }}
         whileTap={{ scale: 0.97 }}
-        className="flex w-full items-center gap-3 rounded-full bg-white/85 py-1.5 pl-1.5 pr-3 text-left shadow-[0_14px_30px_-16px_rgba(23,32,58,0.5)] ring-1 ring-white/70 backdrop-blur-xl outline-none focus-visible:ring-4 focus-visible:ring-primary/35"
+        className={cn(
+          "rounded-full bg-white/85 text-left shadow-[0_14px_30px_-16px_rgba(23,32,58,0.5)] ring-1 ring-white/70 backdrop-blur-xl outline-none focus-visible:ring-4 focus-visible:ring-primary/35",
+          compact ? "flex h-11 w-11 items-center justify-center" : "flex w-full items-center gap-3 py-1.5 pl-1.5 pr-3",
+        )}
       >
-        <Avatar initials={persona.initials} role={role} size="sm" />
-        <span className="min-w-0 flex-1">
-          <span className="block text-[10px] font-extrabold uppercase tracking-[0.16em] text-muted-ink">Viewing as</span>
-          <span className="flex items-baseline gap-1.5 truncate">
-            <span className="text-sm font-black text-ink">{roleDefinition.label}</span>
-            <span className="truncate text-xs font-semibold text-muted-ink">· {persona.fullName}</span>
-          </span>
-        </span>
-        <span className="flex h-7 items-center gap-1 rounded-full bg-ink/5 px-2.5 text-[11px] font-extrabold text-ink">
-          Switch
-          <ChevronDown className="h-3.5 w-3.5" strokeWidth={3} />
-        </span>
+        {compact ? (
+          <Avatar initials={persona.initials} role={role} size="sm" />
+        ) : (
+          <>
+            <Avatar initials={persona.initials} role={role} size="sm" />
+            <span className="min-w-0 flex-1">
+              <span className="block text-[10px] font-extrabold uppercase tracking-[0.16em] text-muted-ink">Viewing as</span>
+              <span className="flex items-baseline gap-1.5 truncate">
+                <span className="text-sm font-black text-ink">{roleDefinition.label}</span>
+                <span className="truncate text-xs font-semibold text-muted-ink">· {persona.fullName}</span>
+              </span>
+            </span>
+            <span className="flex h-7 items-center gap-1 rounded-full bg-ink/5 px-2.5 text-[11px] font-extrabold text-ink">
+              Switch
+              <ChevronDown className="h-3.5 w-3.5" strokeWidth={3} />
+            </span>
+          </>
+        )}
       </motion.button>
 
       <AnimatePresence>

@@ -1,17 +1,17 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { ListChecks, Route, UserRound, Users, Wrench, type LucideIcon } from "lucide-react";
+import { House, ListChecks, Route, Users, Wrench, type LucideIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-export type TabId = "journey" | "tasks" | "tools" | "buddy" | "profile";
+export type TabId = "home" | "journey" | "tasks" | "tools" | "buddy" | "profile";
 
 const TABS: { id: TabId; label: string; icon: LucideIcon }[] = [
+  { id: "home", label: "Home", icon: House },
   { id: "journey", label: "Journey", icon: Route },
   { id: "tasks", label: "Tasks", icon: ListChecks },
   { id: "tools", label: "Tools", icon: Wrench },
   { id: "buddy", label: "Buddy", icon: Users },
-  { id: "profile", label: "Profile", icon: UserRound },
 ];
 
 type BottomNavProps = {
@@ -25,7 +25,7 @@ export function BottomNav({ active, onChange }: BottomNavProps) {
       aria-label="Primary"
       className="absolute inset-x-0 bottom-0 z-30 px-4 pb-[max(1rem,env(safe-area-inset-bottom))] pt-2"
     >
-      <div className="mx-auto flex max-w-sm items-stretch justify-between rounded-[2rem] bg-white/90 p-2 shadow-[0_20px_50px_-15px_rgba(23,32,58,0.45)] ring-1 ring-ink/5 backdrop-blur-xl">
+      <div className="mx-auto flex max-w-sm items-stretch justify-between rounded-[2rem] bg-white/90 p-1.5 shadow-[0_20px_50px_-15px_rgba(23,32,58,0.45)] ring-1 ring-ink/5 backdrop-blur-xl">
         {TABS.map(({ id, label, icon: Icon }) => {
           const isActive = id === active;
           return (
@@ -49,7 +49,7 @@ export function BottomNav({ active, onChange }: BottomNavProps) {
                 whileTap={{ scale: 0.85 }}
                 transition={{ type: "spring", stiffness: 500, damping: 22 }}
               >
-                <Icon className={cn("h-6 w-6 transition-colors", isActive ? "text-white" : "text-muted-ink")} strokeWidth={2.4} />
+                <Icon className={cn("h-5 w-5 transition-colors", isActive ? "text-white" : "text-muted-ink")} strokeWidth={2.4} />
               </motion.span>
               <span
                 className={cn(

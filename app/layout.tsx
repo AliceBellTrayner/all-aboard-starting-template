@@ -9,7 +9,7 @@ const brandFont = Nunito_Sans({ subsets: ["latin"], variable: "--font-brand", di
 
 export const metadata: Metadata = {
   title: "HorseShoe by Lloyds Banking Group",
-  description: "A mobile-first onboarding journey for new starters (mock data).",
+  description: "A welcoming home screen and onboarding journey for new starters.",
   applicationName: "HorseShoe",
 };
 
